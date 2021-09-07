@@ -22,22 +22,27 @@ data "aws_ami" "ubuntu" {
 resource "aws_instance" "web" {
   ami           = data.aws_ami.ubuntu.id
   instance_type = "t2.micro"
-  user_data = "${data.template_cloudinit_config.cloud_init.rendered}"
+  user_data = "${data.template_cloudinit_config.opsmi_cloud_init.rendered}"
   key_name = "instance-key"
 
   tags = {
     Name = "HelloWorld"
   }
 }
-data "template_file" "user_data"{
-    template = filebase64("${path.module}/user_data_template.tpl")
+data "template_file" "user_data" {
+  template = "${file("${path.module}/user_data_template.tpl")}"
+  vars = {
+    environment        = "${var.environment}"
+    platform           = "${var.platform}"
+  }
 }
 
-data "template_cloudinit_config" "cloud_init"{
-    gzip = true
-    base64_encode = true
-    part {
-        content_type = "text/cloud-config"
-        content = "${data.template_file.user_data.rendered}"
-    }
+data "template_cloudinit_config" "opsmi_cloud_init" {
+  gzip          = true
+  base64_encode = true
+
+  part {
+    content_type = "text/cloud-config"
+    content      = "${data.template_file.user_data.rendered}"
+  }
 }
