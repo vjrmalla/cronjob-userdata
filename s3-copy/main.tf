@@ -31,6 +31,13 @@ resource "aws_instance" "web" {
 }
 data "template_file" "user_data" {
   template = "${file("${path.module}/user_data_template.tpl")}"
+<<<<<<< HEAD
+=======
+  vars = {
+    environment        = "${var.environment}"
+    platform           = "${var.platform}"
+  }
+>>>>>>> 6cd7347244aa8a462020a05a52e005cb867107a2
 }
 
 data "template_cloudinit_config" "opsmi_cloud_init" {
@@ -41,4 +48,8 @@ data "template_cloudinit_config" "opsmi_cloud_init" {
     content_type = "text/cloud-config"
     content      = "${data.template_file.user_data.rendered}"
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 6cd7347244aa8a462020a05a52e005cb867107a2
