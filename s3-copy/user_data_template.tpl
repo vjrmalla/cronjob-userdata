@@ -1,12 +1,28 @@
 #cloud-config
 
+
+groups:
+  - infraopsmi
+
+users:
+  - default
+  - name: opsmicopy
+    ssh-authorized-keys:
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    groups: infraopsmi
+    shell: /bin/bash
+
 write_files:
 -   owner: root:root
-    path: /tmp/s3copy.sh
-    permissions: '0754'
-    encoding = "b64"
-    content: file("$${path.module}/s3copy.sh")
--   owner: root:root
-    path: /etc/cron.d/s3copy_cron
+    path: /tmp/s3copy1.sh
     permissions: '0644'
-    content: "*/5 * * * * root /tmp/s3copy.sh"
+    content: |
+        ENVIRONMENT="${environment}"
+        PLATFORM="${platform}"
+
+-   owner: root:root
+    path: /tmp/s3copy2.sh
+    permissions: '0640'
+    content: |
+          PLATFORM="${platform}"
+          ENVIRONMENT="${environment}"
