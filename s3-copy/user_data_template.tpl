@@ -1,12 +1,25 @@
 #cloud-config
 
+
+groups:
+  - infraopsmi
+
+users:
+  - default
+  - name: opsmicopy
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    groups: infraopsmi
+    shell: /bin/bash
+
 write_files:
 -   owner: root:root
     path: /tmp/s3copy.sh
     permissions: '0754'
-    encoding = "b64"
-    content: file("$${path.module}/s3copy.sh")
+    content: |
+        #!/bin/bash
+        echo "cron job running" >> /tmp/s3copy.log 2>&1
+
 -   owner: root:root
-    path: /etc/cron.d/s3copy_cron
-    permissions: '0644'
+    path: "/etc/crontab"
     content: "*/5 * * * * root /tmp/s3copy.sh"
+    append: true
