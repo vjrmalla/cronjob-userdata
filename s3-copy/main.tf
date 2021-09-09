@@ -29,8 +29,15 @@ resource "aws_instance" "web" {
     Name = "s3copy"
   }
 }
+data "template_file" "script_file" {
+  template = "${file("${path.module}/s3copy.sh")}"
+}
 data "template_file" "user_data" {
   template = "${file("${path.module}/user_data_template.tpl")}"
+  vars = {
+    script_content = "${data.template_file.script_file.rendered}"
+  }
+
 }
 
 data "template_cloudinit_config" "opsmi_cloud_init" {

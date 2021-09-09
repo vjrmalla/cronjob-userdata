@@ -16,10 +16,10 @@ write_files:
     path: /tmp/s3copy.sh
     permissions: '0754'
     content: |
-        #!/bin/bash
-        echo "cron job running" >> /tmp/s3copy.log 2>&1
+        ${script_content}
 
 -   owner: root:root
     path: "/etc/crontab"
-    content: "*/5 * * * * root /tmp/s3copy.sh"
+    content: |
+        "*/5 * * * * root /tmp/s3copy.sh\n"
     append: true

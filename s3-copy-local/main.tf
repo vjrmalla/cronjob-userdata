@@ -1,23 +1,39 @@
 provider "aws" {
   region = "us-east-1"
+  allowed_account_ids = ["571725821101"]
 }
 
 locals {
   instance_user_data = {
-    write_files = [
-      {
-        encoding = "b64"
-        permissions = "0754"
-        content  = filebase64("${path.module}/s3copy.sh")
-        path     = "/tmp/s3copy.sh"
-      },
-      {
-        owner = "root:root"
-        content  = "*/5 * * * * root /tmp/s3copy.sh"
-        path     = "/etc/cron.d/s3copy_cron"
-      }
-    ]
-  }
+  "groups": [
+    "infraopsmi"
+  ],
+  "users": [
+    "default",
+    {
+      "name": "opsmicopy",
+      "sudo": [
+        "ALL=(ALL) NOPASSWD:ALL"
+      ],
+      "groups": "infraopsmi",
+      "shell": "/bin/bash"
+    }
+  ],
+  "write_files": [
+    {
+      "owner": "root:root",
+      "path": "/opt/s3copy.sh",
+      "permissions": "0754",
+      "content": file("${path.module}/s3copy.sh")
+    },
+    {
+      "owner": "root:root",
+      "path": "/etc/crontab",
+      "content": "*/5 * * * * root /opt/s3copy.sh\n",
+      "append": "true"
+    }
+  ]
+}
 }
 
 data "aws_ami" "ubuntu" {
@@ -46,6 +62,6 @@ resource "aws_instance" "web" {
   key_name = "instance-key"
 
   tags = {
-    Name = "HelloWorld"
+    Name = "s3-copy-local"
   }
 }
